@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import uuid
 import math
 import requests
+import os
 
 # توکن ربات
 TOKEN = '7255407869:AAFPh33cnOEaCLPuoAqPk-5rwZ5ROhpinuM'
@@ -3285,13 +3286,51 @@ def toggle_same_age(call):
     bot.answer_callback_query(call.id, f"جستجوی هم سن {status_text} شد!")
 
 
+import logging
+
+# تنظیم لاگ‌گیری
+logging.basicConfig(level=logging.DEBUG, filename='chatbot.log', format='%(asctime)s - %(levelname)s - %(message)s')
+
+# مسیر مطلق برای فایل پایگاه داده
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'chatbot.db'))
+
+# قفل سراسری برای جلوگیری از Race Condition
+search_lock = threading.Lock()
+
+
 @bot.callback_query_handler(func=lambda call: call.data == 'random_search')
 def start_random_search(call):
     user_id = call.from_user.id
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET status = 'searching', partner_id = NULL WHERE user_id = ?", (user_id,))
-    conn.commit()
-    cursor.close()
+
+    # استفاده از اتصال اختصاصی برای به‌روزرسانی وضعیت
+    local_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    local_conn.execute('PRAGMA journal_mode=WAL;')
+    local_cursor = local_conn.cursor()
+
+    try:
+        with search_lock:
+            local_cursor.execute("BEGIN IMMEDIATE")
+            # بررسی وضعیت فعلی کاربر
+            local_cursor.execute("SELECT status, partner_id FROM users WHERE user_id = ?", (user_id,))
+            user_status = local_cursor.fetchone()
+            if user_status and (user_status[0] == 'chatting' or user_status[1] is not None):
+                local_conn.rollback()
+                bot.send_message(user_id, "شما در حال چت هستید! لطفاً چت فعلی را پایان دهید.", reply_markup=main_markup)
+                logging.debug(f"User {user_id} tried to start search while in chatting state")
+                return
+
+            # به‌روزرسانی وضعیت به searching
+            local_cursor.execute("UPDATE users SET status = 'searching', partner_id = NULL WHERE user_id = ?",
+                                 (user_id,))
+            local_conn.commit()
+    except Exception as e:
+        logging.error(f"Error in start_random_search for user {user_id}: {e}")
+        local_conn.rollback()
+        bot.send_message(user_id, "خطایی رخ داد. لطفاً دوباره تلاش کنید.", reply_markup=main_markup)
+        return
+    finally:
+        local_cursor.close()
+        local_conn.close()
 
     text = "🔎 درحال جستجوی مخاطب ناشناس شما\n🎲 جستجوی شانسی\n⏳ حداکثر تا 2 دقیقه صبر کنید."
     markup = types.InlineKeyboardMarkup()
@@ -3299,29 +3338,25 @@ def start_random_search(call):
     try:
         bot.edit_message_text(text, user_id, call.message.message_id, reply_markup=markup)
     except Exception as e:
-
+        logging.error(f"Error editing message for user {user_id}: {e}")
         bot.send_message(user_id, text, reply_markup=markup)
 
-    threading.Thread(target=search_partner_random, args=(user_id, bot, conn)).start()
+    threading.Thread(target=search_partner_random, args=(user_id, bot)).start()
 
 
-# قفل سراسری برای جلوگیری از Race Condition
-search_lock = threading.Lock()
-
-
-def search_partner_random(user_id, bot, conn):
+def search_partner_random(user_id, bot):
     start_time = time.time()
     max_search_time = 120  # حداکثر 2 دقیقه
 
     # ایجاد اتصال اختصاصی برای این نخ
-    local_conn = sqlite3.connect('chatbot.db', check_same_thread=False)
-    local_conn.execute('PRAGMA journal_mode=WAL;')  # فعال‌سازی Write-Ahead Logging
+    local_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    local_conn.execute('PRAGMA journal_mode=WAL;')
     local_cursor = local_conn.cursor()
 
     try:
+        logging.debug(f"Starting random search for user {user_id}")
         while time.time() - start_time < max_search_time:
-            with search_lock:  # قفل سراسری برای جلوگیری از تداخل
-                # شروع تراکنش اتمیک
+            with search_lock:
                 local_cursor.execute("BEGIN IMMEDIATE")
 
                 # بررسی وضعیت کاربر فعلی
@@ -3329,7 +3364,9 @@ def search_partner_random(user_id, bot, conn):
                 user_status = local_cursor.fetchone()
                 if not user_status or user_status[0] != 'searching' or user_status[1] is not None:
                     local_conn.rollback()
-                    bot.send_message(user_id, "جستجو به دلیل تغییر وضعیت لغو شد.", reply_markup=main_markup)
+                    bot.send_message(user_id, "به کاربر سلام کن", reply_markup=chat_markup)
+                    logging.debug(
+                        f"Search cancelled for user {user_id}: status={user_status[0] if user_status else None}, partner_id={user_status[1] if user_status else None}")
                     return
 
                 # انتخاب کاربر مناسب
@@ -3346,64 +3383,70 @@ def search_partner_random(user_id, bot, conn):
 
                 if partner:
                     partner_id = partner[0]
+                    logging.debug(f"Found potential partner {partner_id} for user {user_id}")
 
-                    # بررسی دوباره وضعیت پارتنر
+                    # بررسی دوباره وضعیت پارتنر با قفل
                     local_cursor.execute("SELECT status, partner_id FROM users WHERE user_id = ?", (partner_id,))
                     partner_status = local_cursor.fetchone()
-                    if partner_status[0] != 'searching' or partner_status[1] is not None:
+                    if not partner_status or partner_status[0] != 'searching' or partner_status[1] is not None:
                         local_conn.rollback()
-                        time.sleep(0.5)
+                        logging.debug(
+                            f"Partner {partner_id} invalid: status={partner_status[0] if partner_status else None}, partner_id={partner_status[1] if partner_status else None}")
+                        time.sleep(0.1)
                         continue
 
                     # به‌روزرسانی اتمیک برای هر دو کاربر
                     local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
-                                        (partner_id, user_id))
+                                         (partner_id, user_id))
                     local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
-                                        (user_id, partner_id))
+                                         (user_id, partner_id))
                     local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)",
-                                        (user_id, partner_id))
+                                         (user_id, partner_id))
                     local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)",
-                                        (partner_id, user_id))
+                                         (partner_id, user_id))
                     local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
-                                        (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
+                                         (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
                     local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
-                                        (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), partner_id))
+                                         (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), partner_id))
                     local_conn.commit()
+                    logging.info(f"Chat started between {user_id} and {partner_id}")
 
                     # ارسال پیام به هر دو کاربر
                     local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (partner_id,))
                     partner_name, partner_unique = local_cursor.fetchone()
                     start_text_user = (f"چت با ({partner_name}) /user_{partner_unique} شروع شد! "
-                                      "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
-                                      "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
+                                       "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
+                                       "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
                     bot.send_message(user_id, start_text_user, reply_markup=chat_markup)
 
                     local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (user_id,))
                     user_name, user_unique = local_cursor.fetchone()
                     start_text_partner = (f"چت با ({user_name}) /user_{user_unique} شروع شد! "
-                                        "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
-                                        "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
+                                          "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
+                                          "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
                     bot.send_message(partner_id, start_text_partner, reply_markup=chat_markup)
 
                     return
 
-                local_conn.rollback()  # لغو تراکنش اگر پارتنری پیدا نشد
-            time.sleep(0.5)  # فاصله کوتاه‌تر برای واکنش سریع‌تر
+                local_conn.rollback()
+            time.sleep(0.1)  # کاهش فاصله برای واکنش سریع‌تر
 
         # اگر هیچ کاربری پیدا نشد
         with search_lock:
             local_cursor.execute("UPDATE users SET status = 'idle', partner_id = NULL WHERE user_id = ?", (user_id,))
             local_conn.commit()
         bot.send_message(user_id, "متاسفانه کسی پیدا نشد 😔 دوباره تلاش کن!", reply_markup=main_markup)
+        logging.debug(f"No partner found for user {user_id}")
 
     except Exception as e:
-        print(f"Error in search_partner_random for user {user_id}: {e}")
+        logging.error(f"Error in search_partner_random for user {user_id}: {e}")
         local_conn.rollback()
         bot.send_message(user_id, "خطایی رخ داد. لطفاً دوباره تلاش کنید.", reply_markup=main_markup)
 
     finally:
         local_cursor.close()
-        local_conn.close()  #
+        local_conn.close()
+        logging.debug(f"Connection closed for user {user_id}")
 # تابع برای گرفتن تعداد سکه‌های کاربر
 def get_user_coins(user_id):
     cursor.execute("SELECT coins FROM users WHERE user_id = ?", (user_id,))
