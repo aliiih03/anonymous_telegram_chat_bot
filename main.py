@@ -25,41 +25,41 @@ DEFAULT_PROFILE_PHOTO = 'AgACAgQAAxkBAAIB-miNPoj2J9fsD0j1BYPKCXK7RLopAAJwyDEbghB
 
 # ایجاد جدول کاربران (بدون مقدار پیش‌فرض برای profile_photo)
 # اضافه کردن ستون last_online به جدول users
+# ایجاد جدول users
 cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    name TEXT,
-    gender TEXT,
-    followers_count INTEGER DEFAULT 0,
-    following_count INTEGER DEFAULT 0,
-    province TEXT,
-    city TEXT,
-    age INTEGER,
-    likes_count INTEGER DEFAULT 0,
-    chat_id INTEGER,
-    unique_id TEXT,
-    status TEXT DEFAULT 'idle',
-    partner_id INTEGER,
-    profile_photo TEXT,
-    coins INTEGER DEFAULT 10,
-    private_chat_enabled INTEGER DEFAULT 0,
-    latitude REAL,
-    longitude REAL,
-    last_online DATETIME  -- ستون جدید برای ذخیره زمان آخرین فعالیت
-)
-''')
-
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            name TEXT,
+            gender TEXT,
+            followers_count INTEGER DEFAULT 0,
+            following_count INTEGER DEFAULT 0,
+            province TEXT,
+            city TEXT,
+            age INTEGER,
+            likes_count INTEGER DEFAULT 0,
+            chat_id INTEGER,
+            unique_id TEXT,
+            status TEXT DEFAULT 'idle',
+            partner_id INTEGER,
+            profile_photo TEXT,
+            coins INTEGER DEFAULT 10,
+            private_chat_enabled INTEGER DEFAULT 0,
+            latitude REAL,
+            longitude REAL,
+            last_online DATETIME
+        )
+    ''')
 
 # ایجاد جدول block
-cursor = conn.cursor()
-cursor.execute("""CREATE TABLE IF NOT EXISTS block (
-    blocker_id INTEGER,
-    blocked_id INTEGER,
-    PRIMARY KEY (blocker_id, blocked_id)
-)""")
+cursor.execute('''
+        CREATE TABLE IF NOT EXISTS block (
+            blocker_id INTEGER,
+            blocked_id INTEGER,
+            PRIMARY KEY (blocker_id, blocked_id)
+        )
+    ''')
 conn.commit()
 cursor.close()
-
 
 cursor = conn.cursor()
 # ایجاد جدول referrals اگه وجود نداشته باشه
@@ -247,7 +247,6 @@ def add_referral(user_id, referred_user_id):
     return True
 
 
-
 # هندلر برای "📄 راهنما"
 @bot.message_handler(func=lambda message: message.text == "📄 راهنما")
 def show_help(message):
@@ -270,9 +269,10 @@ def show_help(message):
 ⁉️ آموزش حذف اکانت در ربات /help_deleteAccount
 ⚖️ قوانین استفاده از ربات /rules
 👨‍💻 ارتباط با پشتیبانی ربات:
-@ChatogeramSP
+@chatoogram100
 """
     bot.send_message(user_id, help_text, reply_markup=main_markup)
+
 
 # هندلر برای /help_chat
 @bot.message_handler(commands=['help_chat'])
@@ -300,6 +300,7 @@ def help_chat(message):
 🔸 - ‏ راهنما : /help
 """
     bot.send_message(user_id, help_chat_text, reply_markup=main_markup)
+
 
 # هندلر برای /help_seke
 @bot.message_handler(commands=['help_seke'])
@@ -331,6 +332,7 @@ def help_seke(message):
 """
     bot.send_message(user_id, help_seke_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_gps
 @bot.message_handler(commands=['help_gps'])
 def help_gps(message):
@@ -349,6 +351,7 @@ def help_gps(message):
 🔸 - ‏ راهنما : /help
 """
     bot.send_message(user_id, help_gps_text, reply_markup=main_markup)
+
 
 # هندلر برای /help_profile
 @bot.message_handler(commands=['help_profile'])
@@ -370,6 +373,7 @@ def help_profile(message):
 🔸 - ‏ راهنما : /help
 """
     bot.send_message(user_id, help_profile_text, reply_markup=main_markup)
+
 
 # هندلر برای /help_sendchat
 @bot.message_handler(commands=['help_sendchat'])
@@ -393,6 +397,7 @@ def help_sendchat(message):
 """
     bot.send_message(user_id, help_sendchat_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_direct
 @bot.message_handler(commands=['help_direct'])
 def help_direct(message):
@@ -415,6 +420,7 @@ def help_direct(message):
 """
     bot.send_message(user_id, help_direct_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_onw
 @bot.message_handler(commands=['help_onw'])
 def help_onw(message):
@@ -434,6 +440,7 @@ def help_onw(message):
 🔸 - ‏ راهنما : /help
 """
     bot.send_message(user_id, help_onw_text, reply_markup=main_markup)
+
 
 # هندلر برای /help_chw
 @bot.message_handler(commands=['help_chw'])
@@ -455,6 +462,7 @@ def help_chw(message):
 """
     bot.send_message(user_id, help_chw_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_contacts
 @bot.message_handler(commands=['help_contacts'])
 def help_contacts(message):
@@ -473,6 +481,7 @@ def help_contacts(message):
 """
     bot.send_message(user_id, help_contacts_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_deleteMessage
 @bot.message_handler(commands=['help_deleteMessage'])
 def help_deleteMessage(message):
@@ -488,6 +497,7 @@ def help_deleteMessage(message):
 """
     bot.send_message(user_id, help_deleteMessage_text, reply_markup=main_markup)
 
+
 # هندلر برای /help_deleteAccount
 @bot.message_handler(commands=['help_deleteAccount'])
 def help_deleteAccount(message):
@@ -500,6 +510,7 @@ def help_deleteAccount(message):
 🔸 - ‏ راهنما : /help
 """
     bot.send_message(user_id, help_deleteAccount_text, reply_markup=main_markup)
+
 
 # هندلر برای /rules
 @bot.message_handler(commands=['rules'])
@@ -597,6 +608,12 @@ def invite_friends(message):
 #             parse_mode="HTML"
 #         )
 
+
+
+# تعریف آیدی کانال
+CHANNEL_ID = "@chatooogram"
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
     user_id = message.from_user.id
@@ -604,112 +621,102 @@ def start(message):
     chat_id = message.chat.id
     unique_id = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
     cursor = conn.cursor()
-    args = message.text.split()
-    if len(args) > 1:
-        referral_code = args[1]
-        cursor.execute("SELECT user_id FROM referrals WHERE referral_code = ?", (referral_code,))
-        result = cursor.fetchone()
-        if result:
-            inviter_user_id = result[0]
-            # اضافه کردن کاربر جدید به دیتابیس اگه وجود نداشته باشه
-            cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
-            if not cursor.fetchone():
-                cursor.execute(
-                    "INSERT INTO users (user_id, status, coins, last_online) VALUES (?, 'idle', 10, ?)",
-                    (user_id, datetime.now())
-                )
-                conn.commit()
-            # اضافه کردن سکه و آپدیت تعداد دعوت‌ها
-            if add_referral(inviter_user_id, user_id):
-                bot.send_message(
-                    inviter_user_id,
-                    "🎉 یه نفر با لینک دعوت شما وارد ربات شد! <b>20 سکه</b> به حسابت اضافه شد! 😍",
-                    parse_mode="HTML"
-                )
-                bot.send_message(
-                    user_id,
-                    "🎉 با لینک دعوت دوستت وارد ربات شدی! حالا می‌تونی با <b>چتوگرام</b> کراشتو پیدا کنی! 😎",
-                    parse_mode="HTML"
-                )
-            else:
 
-                cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-
-                if not cursor.fetchone():
-                    cursor.execute(
-                        "INSERT INTO users (user_id, name, chat_id, unique_id, profile_photo, last_online) VALUES (?, ?, ?, ?, ?, ?)",
-                        (user_id, first_name, chat_id, unique_id, DEFAULT_PROFILE_PHOTO,
-                         datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                    )
-                    conn.commit()
-
-                    welcome_text = f"""سلام {first_name} عزیز ✋
-                
-                به 《ربات چت ناشناس چَتوگِرام 📡》 خوش اومدی ، توی این ربات می تونی افراد #نزدیک ات رو پیدا کنی و باهاشون آشنا شی و یا به یه نفر بصورت #ناشناس وصل شی و باهاش #چت کنی ❗️
-                
-                - استفاده از این ربات رایگانه و اطلاعات تلگرام شما مثل اسم،عکس پروفایل یا موقعیت GPS کاملا محرمانه هست😎
-                
-                برای شروع بهم بگو دختری یا پسر ؟ 👇"""
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-                    markup.add("من پسرم", "من دخترم")
-                    markup.add("لغو ❌")
-                    bot.send_message(user_id, welcome_text, reply_markup=markup)
+    # بررسی عضویت کاربر در کانال
+    try:
+        member = bot.get_chat_member(CHANNEL_ID, user_id)
+        if member.status in ['member', 'administrator', 'creator']:
+            # کاربر عضو کانال است، ادامه فرآیند
+            args = message.text.split()
+            if len(args) > 1:
+                referral_code = args[1]
+                cursor.execute("SELECT user_id FROM referrals WHERE referral_code = ?", (referral_code,))
+                result = cursor.fetchone()
+                if result:
+                    inviter_user_id = result[0]
+                    # اضافه کردن کاربر جدید به دیتابیس اگه وجود نداشته باشه
+                    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+                    if not cursor.fetchone():
+                        cursor.execute(
+                            "INSERT INTO users (user_id, status, coins, last_online) VALUES (?, 'idle', 10, ?)",
+                            (user_id, datetime.now())
+                        )
+                        conn.commit()
+                    # اضافه کردن سکه و آپدیت تعداد دعوت‌ها
+                    if add_referral(inviter_user_id, user_id):
+                        bot.send_message(
+                            inviter_user_id,
+                            "🎉 یه نفر با لینک دعوت شما وارد ربات شد! <b>20 سکه</b> به حسابت اضافه شد! 😍",
+                            parse_mode="HTML"
+                        )
+                        bot.send_message(
+                            user_id,
+                            "🎉 با لینک دعوت دوستت وارد ربات شدی! حالا می‌تونی با <b>چتوگرام</b> کراشتو پیدا کنی! 😎",
+                            parse_mode="HTML"
+                        )
                 else:
-                    bot.send_message(user_id, "خوش برگشتی! چی کمکی می‌تونم بکنم؟", reply_markup=main_markup)
-
-        else:
-
-            cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-
-            if not cursor.fetchone():
-                cursor.execute(
-                    "INSERT INTO users (user_id, name, chat_id, unique_id, profile_photo, last_online) VALUES (?, ?, ?, ?, ?, ?)",
-                    (user_id, first_name, chat_id, unique_id, DEFAULT_PROFILE_PHOTO,
-                     datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                )
-                conn.commit()
-
-                welcome_text = f"""سلام {first_name} عزیز ✋
-
-            به 《ربات چت ناشناس چَتوگِرام 📡》 خوش اومدی ، توی این ربات می تونی افراد #نزدیک ات رو پیدا کنی و باهاشون آشنا شی و یا به یه نفر بصورت #ناشناس وصل شی و باهاش #چت کنی ❗️
-
-            - استفاده از این ربات رایگانه و اطلاعات تلگرام شما مثل اسم،عکس پروفایل یا موقعیت GPS کاملا محرمانه هست😎
-
-            برای شروع بهم بگو دختری یا پسر ؟ 👇"""
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-                markup.add("من پسرم", "من دخترم")
-                markup.add("لغو ❌")
-                bot.send_message(user_id, welcome_text, reply_markup=markup)
+                    handle_new_user(user_id, first_name, chat_id, unique_id)
             else:
-                bot.send_message(user_id, "خوش برگشتی! چی کمکی می‌تونم بکنم؟", reply_markup=main_markup)
-
-    else:
-
-        cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-
-        if not cursor.fetchone():
-            cursor.execute(
-                "INSERT INTO users (user_id, name, chat_id, unique_id, profile_photo, last_online) VALUES (?, ?, ?, ?, ?, ?)",
-                (user_id, first_name, chat_id, unique_id, DEFAULT_PROFILE_PHOTO,
-                 datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            )
-            conn.commit()
-
-            welcome_text = f"""سلام {first_name} عزیز ✋
-
-        به 《ربات چت ناشناس چَتوگِرام 📡》 خوش اومدی ، توی این ربات می تونی افراد #نزدیک ات رو پیدا کنی و باهاشون آشنا شی و یا به یه نفر بصورت #ناشناس وصل شی و باهاش #چت کنی ❗️
-
-        - استفاده از این ربات رایگانه و اطلاعات تلگرام شما مثل اسم،عکس پروفایل یا موقعیت GPS کاملا محرمانه هست😎
-
-        برای شروع بهم بگو دختری یا پسر ؟ 👇"""
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-            markup.add("من پسرم", "من دخترم")
-            markup.add("لغو ❌")
-            bot.send_message(user_id, welcome_text, reply_markup=markup)
+                handle_new_user(user_id, first_name, chat_id, unique_id)
         else:
-            bot.send_message(user_id, "خوش برگشتی! چی کمکی می‌تونم بکنم؟", reply_markup=main_markup)
+            # کاربر عضو کانال نیست
+            markup = types.InlineKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("عضویت در کانال", url=f"https://t.me/chatooogram"))
+            markup.add(types.InlineKeyboardButton("بررسی عضویت", callback_data="check_membership"))
+            bot.send_message(
+                user_id,
+                f"برای استفاده از ربات، ابتدا باید در کانال {CHANNEL_ID} عضو بشی! 😊\nبعد از عضویت، روی دکمه 'بررسی عضویت' کلیک کن.",
+                reply_markup=markup
+            )
+    except Exception as e:
+        bot.send_message(user_id, "خطایی رخ داد. لطفاً دوباره امتحان کنید.")
+        print(f"Error checking membership: {e}")
 
 
+# تابع برای مدیریت کاربر جدید
+def handle_new_user(user_id, first_name, chat_id, unique_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (user_id, name, chat_id, unique_id, profile_photo, last_online) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, first_name, chat_id, unique_id, DEFAULT_PROFILE_PHOTO,
+             datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        )
+        conn.commit()
+        welcome_text = f"""سلام {first_name} عزیز ✋
+
+به 《ربات چت ناشناس چَتوگِرام 📡》 خوش اومدی ، توی این ربات می تونی افراد #نزدیک ات رو پیدا کنی و باهاشون آشنا شی و یا به یه نفر بصورت #ناشناس وصل شی و باهاش #چت کنی ❗️
+
+- استفاده از این ربات رایگانه و اطلاعات تلگرام شما مثل اسم،عکس پروفایل یا موقعیت GPS کاملا محرمانه هست😎
+
+برای شروع بهم بگو دختری یا پسر ؟ 👇"""
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        markup.add("من پسرم", "من دخترم")
+        markup.add("لغو ❌")
+        bot.send_message(user_id, welcome_text, reply_markup=markup)
+    else:
+        bot.send_message(user_id, "خوش برگشتی! چی کمکی می‌تونم بکنم؟", reply_markup=main_markup)
+
+
+# مدیریت دکمه بررسی عضویت
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def check_membership_callback(call):
+    user_id = call.from_user.id
+    first_name = call.from_user.first_name or "کاربر"
+    chat_id = call.message.chat.id
+    unique_id = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+    try:
+        member = bot.get_chat_member(CHANNEL_ID, user_id)
+        if member.status in ['member', 'administrator', 'creator']:
+            bot.delete_message(chat_id, call.message.message_id)  # حذف پیام قبلی
+            handle_new_user(user_id, first_name, chat_id, unique_id)
+        else:
+            bot.answer_callback_query(call.id, "شما هنوز در کانال عضو نشده‌اید! لطفاً ابتدا عضو شوید.")
+    except Exception as e:
+        bot.answer_callback_query(call.id, "خطایی رخ داد. لطفاً دوباره امتحان کنید.")
+        print(f"Error checking membership: {e}")
 # هندلر انتخاب جنسیت
 @bot.message_handler(func=lambda message: message.text in ["من پسرم", "من دخترم", "لغو ❌"])
 def set_gender(message):
@@ -744,23 +751,33 @@ def set_gender(message):
 
 # --------------------------------------------------------------------------------------------------------------------------
 
-# متغیرهای زرین‌پال (بعداً جایگزین کنید)
-MERCHANT_ID = "YOUR_ZARINPAL_MERCHANT_ID"  # جای اینو با Merchant ID واقعی پر کنید
-CALLBACK_URL = "https://yourdomain.com/callback"  # جای اینو با URL callback واقعی پر کنید
-ZARINPAL_API_URL = "https://api.zarinpal.com/pg/v4/payment/request.json"  # برای درگاه اصلی
 
+# تنظیمات
+MERCHANT_ID = "your_merchant_id_here"  # مرچنت آیدی زرین‌پال
+BOT_USERNAME = "@Chatoogrambot"  # نام کاربری رباتت
+ZARINPAL_API_URL = "https://www.zarinpal.com/pg/v4/payment/request.json"  # یا sandbox
+ZARINPAL_VERIFY_URL = "https://www.zarinpal.com/pg/v4/payment/verify.json"  # یا sandbox
+CALLBACK_URL = f"https://t.me/{BOT_USERNAME}?start=payment_"
 
-# ZARINPAL_API_URL = "https://sandbox.zarinpal.com/pg/v4/payment/request.json"  # برای تست در sandbox
+# اتصال به دیتابیس
+def get_db_connection():
+    conn = sqlite3.connect('chatbot.db')  # مسیر دیتابیست
+    conn.row_factory = sqlite3.Row
+    return conn
 
 # تابع برای گرفتن تعداد سکه‌های کاربر
 def get_user_coins(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
     cursor.execute("SELECT coins FROM users WHERE user_id = ?", (user_id,))
     result = cursor.fetchone()
+    conn.close()
     return result[0] if result else 10  # 10 سکه پیش‌فرض اگه کاربر جدید باشه
-
 
 # تابع برای ایجاد لینک پرداخت زرین‌پال
 def create_payment_link(user_id, amount, coins):
+    conn = get_db_connection()
+    cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO payments (user_id, amount, coins, status, created_at) VALUES (?, ?, ?, 'pending', ?)",
         (user_id, amount, coins, datetime.now())
@@ -772,7 +789,7 @@ def create_payment_link(user_id, amount, coins):
         "merchant_id": MERCHANT_ID,
         "amount": amount * 10,  # تبدیل تومان به ریال
         "description": f"خرید {coins} سکه برای کاربر {user_id}",
-        "callback_url": f"{CALLBACK_URL}?payment_id={payment_id}",
+        "callback_url": f"{CALLBACK_URL}{payment_id}",
         "metadata": {"mobile": "", "email": ""}
     }
     try:
@@ -782,21 +799,96 @@ def create_payment_link(user_id, amount, coins):
             authority = result["data"]["authority"]
             cursor.execute("UPDATE payments SET authority = ? WHERE payment_id = ?", (authority, payment_id))
             conn.commit()
+            conn.close()
             return f"https://www.zarinpal.com/pg/StartPay/{authority}"
             # برای sandbox: return f"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
         else:
             print(f"Zarinpal error: {result.get('errors')}")
+            conn.close()
             return None
     except Exception as e:
         print(f"Error creating payment link: {e}")
+        conn.close()
         return None
 
+# تابع برای تأیید پرداخت
+def verify_payment(payment_id, authority):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT amount, user_id, coins FROM payments WHERE payment_id = ?", (payment_id,))
+    payment = cursor.fetchone()
+    if not payment:
+        conn.close()
+        return False, "پرداخت پیدا نشد."
+
+    amount, user_id, coins = payment['amount'], payment['user_id'], payment['coins']
+
+    # تأیید پرداخت از زرین‌پال
+    verify_payload = {
+        "merchant_id": MERCHANT_ID,
+        "amount": amount * 10,  # تبدیل به ریال
+        "authority": authority
+    }
+    try:
+        response = requests.post(ZARINPAL_VERIFY_URL, json=verify_payload)
+        result = response.json()
+        if result.get("data", {}).get("code") == 100:
+            # پرداخت موفق
+            cursor.execute("UPDATE payments SET status = 'success' WHERE payment_id = ?", (payment_id,))
+            cursor.execute("UPDATE users SET coins = coins + ? WHERE user_id = ?", (coins, user_id))
+            conn.commit()
+            conn.close()
+            return True, f"پرداخت موفق! {coins} سکه به حساب شما اضافه شد."
+        else:
+            cursor.execute("UPDATE payments SET status = 'failed' WHERE payment_id = ?", (payment_id,))
+            conn.commit()
+            conn.close()
+            return False, "پرداخت ناموفق بود."
+    except Exception as e:
+        print(f"Error verifying payment: {e}")
+        cursor.execute("UPDATE payments SET status = 'failed' WHERE payment_id = ?", (payment_id,))
+        conn.commit()
+        conn.close()
+        return False, "خطا در تأیید پرداخت."
+
+# هندلر برای callback پرداخت
+@bot.message_handler(commands=['start'])
+def handle_start(message):
+    user_id = message.from_user.id
+    update_last_online(user_id)  # فرض می‌کنیم این تابع وجود داره
+
+    if message.text.startswith('/start payment_'):
+        try:
+            payment_id = int(message.text.split('_')[1])
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT authority, status FROM payments WHERE payment_id = ?", (payment_id,))
+            payment = cursor.fetchone()
+            conn.close()
+
+            if not payment:
+                bot.send_message(message.chat.id, "خطا: پرداخت پیدا نشد.", reply_markup=main_markup)
+                return
+
+            if payment['status'] == 'success':
+                bot.send_message(message.chat.id, "این پرداخت قبلاً تأیید شده است.", reply_markup=main_markup)
+                return
+
+            # تأیید پرداخت
+            success, response_message = verify_payment(payment_id, payment['authority'])
+            bot.send_message(message.chat.id, response_message, reply_markup=main_markup)
+        except Exception as e:
+            print(f"Error in start handler: {e}")
+            bot.send_message(message.chat.id, "خطا در پردازش پرداخت. لطفاً با پشتیبانی تماس بگیرید.", reply_markup=main_markup)
+    else:
+        # هندلر عادی برای /start
+        bot.send_message(message.chat.id, "خوش آمدید!", reply_markup=main_markup)
 
 # هندلر دکمه افزایش سکه
 @bot.message_handler(func=lambda message: message.text == "💰 افزایش سکه")
 def show_payment_options(message):
     user_id = message.from_user.id
-    update_last_online(user_id)  # فرض می‌کنیم این تابع وجود داره
+    update_last_online(user_id)
 
     coins = get_user_coins(user_id)
     text = (
@@ -810,7 +902,6 @@ def show_payment_options(message):
         "<b>🔰 آموزش مرحله به مرحله خرید سکه 💰</b>"
     )
     bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=create_payment_keyboard())
-
 
 # ایجاد InlineKeyboard برای تعرفه‌ها
 def create_payment_keyboard():
@@ -826,7 +917,6 @@ def create_payment_keyboard():
     ]
     keyboard.add(*buttons)
     return keyboard
-
 
 # هندلر برای انتخاب تعرفه
 @bot.callback_query_handler(func=lambda call: call.data.startswith('pay_') and not call.data == 'pay_gift')
@@ -869,7 +959,6 @@ def handle_payment_selection(call):
         bot.send_message(user_id, text, parse_mode="HTML", reply_markup=markup)
     bot.answer_callback_query(call.id, f"لینک پرداخت برای {coins} سکه ساخته شد!")
 
-
 # هندلر برای پرداخت آفلاین
 @bot.callback_query_handler(func=lambda call: call.data.startswith('offline_payment_'))
 def handle_offline_payment(call):
@@ -883,7 +972,7 @@ def handle_offline_payment(call):
         "🏧 شماره کارت: <YOUR_CARD_NUMBER>\n"
         "🏦 بانک: <YOUR_BANK_NAME>\n"
         "👤 به نام: <YOUR_NAME>\n\n"
-        "📞 پشتیبانی: @YourSupportUsername\n"
+        "📞 پشتیبانی: @chatoogram100\n"
         "⚠️ توجه: پس از ارسال رسید، سکه‌ها به حسابتون اضافه می‌شه."
     )
     markup = types.InlineKeyboardMarkup()
@@ -901,7 +990,6 @@ def handle_offline_payment(call):
         print(f"Error editing message for user {user_id}: {e}")
         bot.send_message(user_id, text, parse_mode="HTML", reply_markup=markup)
     bot.answer_callback_query(call.id, "اطلاعات پرداخت آفلاین نمایش داده شد!")
-
 
 # هندلر برای بازگشت به منوی تعرفه‌ها
 @bot.callback_query_handler(func=lambda call: call.data == 'back_to_payment_options')
@@ -931,8 +1019,6 @@ def back_to_payment_options(call):
         print(f"Error editing message for user {user_id}: {e}")
         bot.send_message(user_id, text, parse_mode="HTML", reply_markup=create_payment_keyboard())
     bot.answer_callback_query(call.id, "بازگشت به منوی افزایش سکه")
-
-
 # هندلر برای هدیه به دوست (فعلاً placeholder)
 @bot.callback_query_handler(func=lambda call: call.data == 'pay_gift')
 def handle_gift_payment(call):
@@ -1467,6 +1553,7 @@ def get_profile_inline_keyboard(user_id):
     )
     return markup
 
+
 def register_block_partner_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data.startswith('block_partner_'))
     def block_partner(call):
@@ -1511,7 +1598,6 @@ def register_block_partner_handler(bot, conn):
         cursor.close()
 
 
-
 def register_block_list_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data == 'block_list')
     def handle_block_list_query(call):
@@ -1530,7 +1616,7 @@ def register_block_list_handler(bot, conn):
         cursor.close()
 
         if not blocked_users:
-            bot.send_message(call.message.chat.id, "شما هنوز کسی رو بلاک نکردید!",)
+            bot.send_message(call.message.chat.id, "شما هنوز کسی رو بلاک نکردید!", )
             return
 
         message = "لیست کاربران بلاک‌شده:\n"
@@ -1540,7 +1626,6 @@ def register_block_list_handler(bot, conn):
             keyboard.add(types.InlineKeyboardButton("آنبلاک", callback_data=f'unblock_partner_{user[0]}'))
             bot.send_message(call.message.chat.id, message, reply_markup=keyboard)
             message = ""  # ریست پیام برای کاربر بعدی
-
 
 
 def register_unblock_partner_handler(bot, conn):
@@ -1588,11 +1673,13 @@ try:
     if 'latitude' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN latitude REAL")
         conn.commit()
-    else:   pass
+    else:
+        pass
 except sqlite3.OperationalError as e:
     pass
 finally:
     cursor.close()
+
 
 # تعریف handlerها
 def register_callback_handlers(bot):
@@ -1606,6 +1693,7 @@ def register_callback_handlers(bot):
             reply_markup=create_friends_menu()
         )
 
+
 def create_friends_menu():
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
@@ -1613,6 +1701,7 @@ def create_friends_menu():
         types.InlineKeyboardButton("کسایی که منو فالو کردن", callback_data='followers')
     )
     return keyboard
+
 
 def register_following_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data == 'following')
@@ -1644,6 +1733,7 @@ def register_following_handler(bot, conn):
             message = ""  # ریست پیام برای کاربر بعدی
 
         bot.send_message(call.message.chat.id, "بازگشت به منوی دوستان:", reply_markup=create_friends_menu())
+
 
 def register_followers_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data == 'followers')
@@ -1686,6 +1776,7 @@ def register_followers_handler(bot, conn):
 
         bot.send_message(call.message.chat.id, "بازگشت به منوی دوستان:", reply_markup=create_friends_menu())
 
+
 def register_follow_partner_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data.startswith('follow_partner_'))
     def handle_follow_partner(call):
@@ -1717,6 +1808,7 @@ def register_follow_partner_handler(bot, conn):
         cursor.close()
 
         bot.send_message(call.message.chat.id, "کاربر با موفقیت فالو شد! ✅", reply_markup=create_friends_menu())
+
 
 def register_unfollow_partner_handler(bot, conn):
     @bot.callback_query_handler(func=lambda call: call.data.startswith('unfollow_partner_'))
@@ -1750,6 +1842,7 @@ def register_unfollow_partner_handler(bot, conn):
 
         bot.send_message(call.message.chat.id, "کاربر با موفقیت آنفالو شد! 🛑", reply_markup=create_friends_menu())
 
+
 # فرض می‌کنیم bot قبلاً تعریف شده
 
 
@@ -1762,9 +1855,6 @@ register_callback_handlers(bot)
 register_block_partner_handler(bot, conn)
 register_block_list_handler(bot, conn)
 register_unblock_partner_handler(bot, conn)
-
-
-
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'private_chat_toggle')
@@ -1822,6 +1912,7 @@ def private_chat_toggle(call):
         print(f"Error updating profile message: {e}")
         bot.send_message(user_id, profile_text, reply_markup=markup)
         bot.answer_callback_query(call.id, "وضعیت چت خصوصی تغییر کرد، اما پیام پروفایل آپدیت نشد!")
+
 
 cursor = conn.cursor()
 # اضافه کردن ستون‌های latitude و longitude به جدول users
@@ -3194,54 +3285,125 @@ def toggle_same_age(call):
     bot.answer_callback_query(call.id, f"جستجوی هم سن {status_text} شد!")
 
 
-# کال‌بک برای جستجوی شانسی
 @bot.callback_query_handler(func=lambda call: call.data == 'random_search')
 def start_random_search(call):
     user_id = call.from_user.id
+    cursor = conn.cursor()
     cursor.execute("UPDATE users SET status = 'searching', partner_id = NULL WHERE user_id = ?", (user_id,))
     conn.commit()
-    text = "🔎 درحال جستجوی مخاطب ناشناس شما\n🎲 جستوجوی شانسی\n⏳ حداکثر تا 2 دقیقه صبر کنید."
+    cursor.close()
+
+    text = "🔎 درحال جستجوی مخاطب ناشناس شما\n🎲 جستجوی شانسی\n⏳ حداکثر تا 2 دقیقه صبر کنید."
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("لغو جستجو", callback_data='cancel_search'))
-    bot.edit_message_text(text, user_id, call.message.message_id, reply_markup=markup)
-    threading.Thread(target=search_partner_random, args=(user_id,)).start()
+    try:
+        bot.edit_message_text(text, user_id, call.message.message_id, reply_markup=markup)
+    except Exception as e:
+
+        bot.send_message(user_id, text, reply_markup=markup)
+
+    threading.Thread(target=search_partner_random, args=(user_id, bot, conn)).start()
 
 
-# به‌روزرسانی تابع search_partner برای ثبت چت در تاریخچه
-def search_partner_random(user_id):
+# قفل سراسری برای جلوگیری از Race Condition
+search_lock = threading.Lock()
+
+
+def search_partner_random(user_id, bot, conn):
     start_time = time.time()
-    local_cursor = conn.cursor()
-    while time.time() - start_time < 300:
-        local_cursor.execute("SELECT user_id FROM users WHERE status = 'searching' AND user_id != ? LIMIT 1",
-                             (user_id,))
-        partner = local_cursor.fetchone()
-        if partner:
-            partner_id = partner[0]
-            local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
-                                 (partner_id, user_id))
-            local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
-                                 (user_id, partner_id))
-            # ثبت چت در تاریخچه
-            local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)", (user_id, partner_id))
-            local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)", (partner_id, user_id))
-            # آپدیت last_online برای هر دو کاربر
-            local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
-                                 (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
-            local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
-                                 (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), partner_id))
-            conn.commit()
-            local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (partner_id,))
-            partner_name, partner_unique = local_cursor.fetchone()
-            start_text_user = f"چت با ({partner_name}) /user_{partner_unique} شروع شد! بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n⚠️ اخطار : به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!"
-            bot.send_message(user_id, start_text_user, reply_markup=chat_markup)
-            local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (user_id,))
-            user_name, user_unique = local_cursor.fetchone()
-            start_text_partner = f"چت با ({user_name}) /user_{user_unique} شروع شد! بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n⚠️ اخطار : به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!"
-            bot.send_message(partner_id, start_text_partner, reply_markup=chat_markup)
-            return
-        time.sleep(5)
+    max_search_time = 120  # حداکثر 2 دقیقه
 
+    # ایجاد اتصال اختصاصی برای این نخ
+    local_conn = sqlite3.connect('chatbot.db', check_same_thread=False)
+    local_conn.execute('PRAGMA journal_mode=WAL;')  # فعال‌سازی Write-Ahead Logging
+    local_cursor = local_conn.cursor()
 
+    try:
+        while time.time() - start_time < max_search_time:
+            with search_lock:  # قفل سراسری برای جلوگیری از تداخل
+                # شروع تراکنش اتمیک
+                local_cursor.execute("BEGIN IMMEDIATE")
+
+                # بررسی وضعیت کاربر فعلی
+                local_cursor.execute("SELECT status, partner_id FROM users WHERE user_id = ?", (user_id,))
+                user_status = local_cursor.fetchone()
+                if not user_status or user_status[0] != 'searching' or user_status[1] is not None:
+                    local_conn.rollback()
+                    bot.send_message(user_id, "جستجو به دلیل تغییر وضعیت لغو شد.", reply_markup=main_markup)
+                    return
+
+                # انتخاب کاربر مناسب
+                local_cursor.execute("""
+                    SELECT user_id 
+                    FROM users 
+                    WHERE status = 'searching' 
+                    AND user_id != ? 
+                    AND partner_id IS NULL 
+                    AND user_id NOT IN (SELECT blocked_id FROM block WHERE blocker_id = ?)
+                    LIMIT 1
+                """, (user_id, user_id))
+                partner = local_cursor.fetchone()
+
+                if partner:
+                    partner_id = partner[0]
+
+                    # بررسی دوباره وضعیت پارتنر
+                    local_cursor.execute("SELECT status, partner_id FROM users WHERE user_id = ?", (partner_id,))
+                    partner_status = local_cursor.fetchone()
+                    if partner_status[0] != 'searching' or partner_status[1] is not None:
+                        local_conn.rollback()
+                        time.sleep(0.5)
+                        continue
+
+                    # به‌روزرسانی اتمیک برای هر دو کاربر
+                    local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
+                                        (partner_id, user_id))
+                    local_cursor.execute("UPDATE users SET status = 'chatting', partner_id = ? WHERE user_id = ?",
+                                        (user_id, partner_id))
+                    local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)",
+                                        (user_id, partner_id))
+                    local_cursor.execute("INSERT INTO chat_history (user_id, partner_id) VALUES (?, ?)",
+                                        (partner_id, user_id))
+                    local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
+                                        (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user_id))
+                    local_cursor.execute("UPDATE users SET last_online = ? WHERE user_id = ?",
+                                        (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), partner_id))
+                    local_conn.commit()
+
+                    # ارسال پیام به هر دو کاربر
+                    local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (partner_id,))
+                    partner_name, partner_unique = local_cursor.fetchone()
+                    start_text_user = (f"چت با ({partner_name}) /user_{partner_unique} شروع شد! "
+                                      "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
+                                      "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
+                    bot.send_message(user_id, start_text_user, reply_markup=chat_markup)
+
+                    local_cursor.execute("SELECT name, unique_id FROM users WHERE user_id = ?", (user_id,))
+                    user_name, user_unique = local_cursor.fetchone()
+                    start_text_partner = (f"چت با ({user_name}) /user_{user_unique} شروع شد! "
+                                        "بهش سلام کن :)\n🤖 پیام سیستم 👇🏻\n"
+                                        "⚠️ اخطار: به هیچ کاربری در ربات اعتماد نکنید و اطلاعات شخصیتان را در اختیار کسی قرار ندهید!")
+                    bot.send_message(partner_id, start_text_partner, reply_markup=chat_markup)
+
+                    return
+
+                local_conn.rollback()  # لغو تراکنش اگر پارتنری پیدا نشد
+            time.sleep(0.5)  # فاصله کوتاه‌تر برای واکنش سریع‌تر
+
+        # اگر هیچ کاربری پیدا نشد
+        with search_lock:
+            local_cursor.execute("UPDATE users SET status = 'idle', partner_id = NULL WHERE user_id = ?", (user_id,))
+            local_conn.commit()
+        bot.send_message(user_id, "متاسفانه کسی پیدا نشد 😔 دوباره تلاش کن!", reply_markup=main_markup)
+
+    except Exception as e:
+        print(f"Error in search_partner_random for user {user_id}: {e}")
+        local_conn.rollback()
+        bot.send_message(user_id, "خطایی رخ داد. لطفاً دوباره تلاش کنید.", reply_markup=main_markup)
+
+    finally:
+        local_cursor.close()
+        local_conn.close()  #
 # تابع برای گرفتن تعداد سکه‌های کاربر
 def get_user_coins(user_id):
     cursor.execute("SELECT coins FROM users WHERE user_id = ?", (user_id,))
